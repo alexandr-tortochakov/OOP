@@ -3,8 +3,8 @@ package ru.academit.tortochakov.range;
 
 public class Main {
     public static void main(String[] args) {
-        Range firstRange = new Range(5, 8);
-        Range secondRange = new Range(6, 16);
+        Range firstRange = new Range(5, 14);
+        Range secondRange = new Range(5, 17);
 
         System.out.println("Длина интервала: ");
         System.out.println(firstRange.length());
@@ -25,19 +25,15 @@ public class Main {
         }
 
         System.out.println("Объединение: ");
-        Range[] mergeRanges = firstRange.merge(secondRange);
-        for (int i = 0; i < mergeRanges.length; i++) {
-            System.out.println(mergeRanges[i].toString());
+        Range[] unionRanges = firstRange.union(secondRange);
+        for (int i = 0; i < unionRanges.length; i++) {
+            System.out.println(unionRanges[i].toString());
         }
 
         System.out.println("Разность: ");
         Range[] subtractionRanges = firstRange.subtraction(secondRange);
-        if (subtractionRanges != null) {
-            for (int i = 0; i < subtractionRanges.length; i++) {
-                System.out.println(subtractionRanges[i].toString());
-            }
-        } else {
-            System.out.println("Разность равна пустому интервалу");
+        for (int i = 0; i < subtractionRanges.length; i++) {
+            System.out.println(subtractionRanges[i].toString());
         }
     }
 }
