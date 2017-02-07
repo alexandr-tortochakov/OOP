@@ -3,8 +3,8 @@ package ru.academit.tortochakov.range;
 
 public class Main {
     public static void main(String[] args) {
-        Range firstRange = new Range(1, 2);
-        Range secondRange = new Range(1, 3);
+        Range firstRange = new Range(2, 5);
+        Range secondRange = new Range(1, 5);
 
         System.out.println("Длина интервала: ");
         System.out.println(firstRange.length());

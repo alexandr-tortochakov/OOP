@@ -24,14 +24,8 @@ public class Range {
     public Range intersection(Range range) {
         if (to < range.from || range.to < from) {
             return null;
-        } else if (from < range.from && to < range.to) {
-            return new Range(range.from, to);
-        } else if (range.from <= from && range.to < to) {
-            return new Range(from, range.to);
-        } else if (from < range.from && to >= range.to) {
-            return new Range(range.from, range.to);
         }
-        return new Range(from, to);
+        return new Range(Math.max(from, range.from), Math.min(to, range.to));
     }
 
     public String toString() {
@@ -39,44 +33,24 @@ public class Range {
     }
 
     public Range[] union(Range range) {
-        if (to < range.from && to < range.to) {
+        if (to < range.from) {
             return new Range[]{new Range(from, to), new Range(range.from, range.to)};
-        } else if (range.to < from && range.to < to) {
+        } else if (range.to < from) {
             return new Range[]{new Range(range.from, range.to), new Range(from, to)};
-        } else if (from < range.from && to <= range.to) {
-            return new Range[]{new Range(from, range.to)};
-        } else if (range.from < from && range.to <= to) {
-            return new Range[]{new Range(range.from, to)};
-        } else if (from == range.from && range.to < to) {
-            return new Range[]{new Range(from, to)};
-        } else if (from == range.from && to < range.to) {
-            return new Range[]{new Range(range.from, range.to)};
-        } else if (from < range.from && to > range.to) {
-            return new Range[]{new Range(from, to)};
         }
-        return new Range[]{new Range(range.from, range.to)};
+        return new Range[]{new Range(Math.min(from, range.from), Math.max(to, range.to))};
     }
 
     public Range[] subtraction(Range range) {
-        if (from == range.from && to == range.to) {
+        if (to <= range.from || range.to <= from) {
+            return new Range[]{new Range(from, to)};
+        } else if (range.from <= from && to <= range.to) {
             return new Range[]{};
-        } else if (to <= range.from && to < range.to) {
-            return new Range[]{new Range(from, to)};
-        } else if (range.to <= from && range.to < to) {
-            return new Range[]{new Range(from, to)};
-        } else if (from < range.from && to <= range.to) {
+        } else if (to <= range.to) {
             return new Range[]{new Range(from, range.from)};
-        } else if (range.from < from && range.to < to) {
+        } else if (range.from <= from) {
             return new Range[]{new Range(range.to, to)};
-        } else if (from == range.from && range.to < to) {
-            return new Range[]{new Range(range.to, to)};
-        } else if (from < range.from && to > range.to) {
-            return new Range[]{new Range(from, range.from), new Range(range.to, to)};
-        } else if (from == range.from && to < range.to) {
-            return new Range[]{};
-        } else if (range.from < from && range.to == to) {
-            return new Range[]{};
         }
-        return new Range[]{};
+        return new Range[]{new Range(from, range.from), new Range(range.to, to)};
     }
 }
