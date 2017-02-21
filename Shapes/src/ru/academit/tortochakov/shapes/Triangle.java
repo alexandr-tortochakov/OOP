@@ -40,11 +40,26 @@ public class Triangle implements Shapes {
         return Math.sqrt(p * (p - a) * (p - b) * (p - c));
     }
 
+    @Override
     public String toString() {
         return "Triangle";
     }
 
-    public boolean equals (Object o) {
+    @Override
+    public boolean equals(Object o) {
         return o instanceof Triangle;
+    }
+
+    @Override
+    public int hashCode() {
+        final int PRIME = 31;
+        int hash = 1;
+        hash = PRIME * hash + (int) x1;
+        hash = PRIME * hash + (int) x2;
+        hash = PRIME * hash + (int) x3;
+        hash = PRIME * hash + (int) y1;
+        hash = PRIME * hash + (int) y2;
+        hash = PRIME * hash + (int) y3;
+        return hash;
     }
 }

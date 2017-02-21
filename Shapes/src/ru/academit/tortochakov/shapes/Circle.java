@@ -24,10 +24,17 @@ public class Circle implements Shapes {
     }
 
     public String toString() {
-        return "Circle";
+        return "Circle: radius " + radius;
     }
 
-    public boolean equals (Object o) {
+    public boolean equals(Object o) {
         return o instanceof Circle;
+    }
+
+    public int hashCode() {
+        final int PRIME = 31;
+        int hash = 1;
+        hash = PRIME * hash + (int) getWidth();
+        return hash;
     }
 }

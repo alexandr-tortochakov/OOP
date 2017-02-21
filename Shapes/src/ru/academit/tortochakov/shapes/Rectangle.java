@@ -27,10 +27,22 @@ public class Rectangle implements Shapes {
         return (height + width) * 2;
     }
 
+    @Override
     public String toString() {
-        return "Rectangle";
+        return "Rectangle: width = " + width + " height = " + height;
     }
-    public boolean equals (Object o) {
+
+    @Override
+    public boolean equals(Object o) {
         return o instanceof Rectangle;
+    }
+
+    @Override
+    public int hashCode() {
+        final int PRIME = 31;
+        int hash = 1;
+        hash = PRIME * hash + (int) getWidth();
+        hash = PRIME * hash + (int) getHeight();
+        return hash;
     }
 }
