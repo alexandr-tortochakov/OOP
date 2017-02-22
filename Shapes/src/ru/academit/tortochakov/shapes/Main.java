@@ -22,49 +22,18 @@ public class Main {
         printMaxArea(shapes);
         printSecondPerimeter(shapes);
 
-        System.out.println(square.equals(rectangle));
+        System.out.println("Check equals: " + square.equals(rectangle));
         System.out.println(square.hashCode());
         System.out.println(square1.hashCode());
     }
 
     public static void printMaxArea(Shape[] shapes) {
-        double max = 0;
-        int x = 0;
-        for (int i = 0; i < shapes.length; i++) {
-            double a = shapes[i].getArea();
-            if (max < a) {
-                max = a;
-                x = i;
-            }
-        }
-        System.out.println(shapes[x]);
+        Arrays.sort(shapes, (o1, o2) -> (int) (o1.getArea() - o2.getArea()));
+        System.out.println(shapes[shapes.length - 1]);
     }
 
     public static void printSecondPerimeter(Shape[] shapes) {
-//        double max = 0;
-//        double second = 0;
-//        int secondIndex = 0;
-//        int maxIndex = 0;
-//        if (shapes == null) {
-//            System.out.println("В массиве нет элементов");
-//            return;
-//        } else if (shapes.length <= 1) {
-//            System.out.println("В массиве меньше двух элементов");
-//            return;
-//        } else if (shapes.length > 1) {
-//            for (int i = 0; i < shapes.length; i++) {
-//                double perimeter = shapes[i].getPerimeter();
-//                if (max < perimeter) {
-//                    second = max;
-//                    secondIndex = maxIndex;
-//                    max = perimeter;
-//                    maxIndex = i;
-//                } else if (perimeter > second) {
-//                    second = perimeter;
-//                    secondIndex = i;
-//                }
-//            }
-//        }
-//        System.out.println(shapes[secondIndex]);
+        Arrays.sort(shapes, (o1, o2) -> (int) (o1.getPerimeter() - o2.getPerimeter()));
+        System.out.println(shapes[shapes.length - 2]);
     }
 }
