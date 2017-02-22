@@ -1,7 +1,12 @@
 package ru.academit.tortochakov.shapes;
 
-public class Triangle implements Shapes {
-    private double x1, x2, x3, y1, y2, y3;
+public class Triangle implements Shape {
+    private double x1;
+    private double x2;
+    private double x3;
+    private double y1;
+    private double y2;
+    private double y3;
 
     public Triangle(double x1, double x2, double x3, double y1, double y2, double y3) {
         this.x1 = x1;
@@ -21,7 +26,7 @@ public class Triangle implements Shapes {
         return Math.max(Math.max(y1, y2), y3) - Math.min(Math.min(y1, y2), y3);
     }
 
-    private double getSide(double x1, double x2, double y1, double y2) {
+    static double getSide(double x1, double x2, double y1, double y2) {
         return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
     }
 
@@ -47,7 +52,12 @@ public class Triangle implements Shapes {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof Triangle;
+        if (!(o instanceof Triangle)) {
+            return false;
+        }
+        Triangle t = (Triangle) o;
+        return (o == this)
+                || (x1 == t.x1 && x2 == t.x2 && x3 == t.x3 && y1 == t.y1 && y2 == t.y2 && y3 == t.y3);
     }
 
     @Override

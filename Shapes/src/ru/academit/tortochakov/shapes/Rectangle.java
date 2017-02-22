@@ -1,8 +1,6 @@
 package ru.academit.tortochakov.shapes;
 
-import java.util.Objects;
-
-public class Rectangle implements Shapes {
+public class Rectangle implements Shape {
     private double height;
     private double width;
 
@@ -34,15 +32,19 @@ public class Rectangle implements Shapes {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof Rectangle;
+        if (!(o instanceof Rectangle)) {
+            return false;
+        }
+        Rectangle r = (Rectangle) o;
+        return (o == this) || (height == r.height && width == r.width);
     }
 
     @Override
     public int hashCode() {
         final int PRIME = 31;
         int hash = 1;
-        hash = PRIME * hash + (int) getWidth();
-        hash = PRIME * hash + (int) getHeight();
+        hash = PRIME * hash + (int) height;
+        hash = PRIME * hash + (int) width;
         return hash;
     }
 }
