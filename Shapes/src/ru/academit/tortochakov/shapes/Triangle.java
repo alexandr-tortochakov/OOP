@@ -26,7 +26,7 @@ public class Triangle implements Shape {
         return Math.max(Math.max(y1, y2), y3) - Math.min(Math.min(y1, y2), y3);
     }
 
-    static double getSide(double x1, double x2, double y1, double y2) {
+    private static double getSide(double x1, double x2, double y1, double y2) {
         return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
     }
 
@@ -52,12 +52,14 @@ public class Triangle implements Shape {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Triangle)) {
+        if (o == this) {
+            return true;
+        }
+        if (o == null || o.getClass() != this.getClass()) {
             return false;
         }
         Triangle t = (Triangle) o;
-        return (o == this)
-                || (x1 == t.x1 && x2 == t.x2 && x3 == t.x3 && y1 == t.y1 && y2 == t.y2 && y3 == t.y3);
+        return x1 == t.x1 && x2 == t.x2 && x3 == t.x3 && y1 == t.y1 && y2 == t.y2 && y3 == t.y3;
     }
 
     @Override

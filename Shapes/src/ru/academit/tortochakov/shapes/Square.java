@@ -30,11 +30,14 @@ public class Square implements Shape {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Square)) {
+        if (o == this) {
+            return true;
+        }
+        if (o == null || o.getClass() != this.getClass()) {
             return false;
         }
         Square s = (Square) o;
-        return (o == this) || (side == s.side);
+        return side == s.side;
     }
 
     @Override

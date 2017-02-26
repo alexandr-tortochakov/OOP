@@ -30,11 +30,14 @@ public class Circle implements Shape {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Circle)) {
+        if (o == this) {
+            return true;
+        }
+        if (o == null || o.getClass() != this.getClass()) {
             return false;
         }
         Circle c = (Circle) o;
-        return (o == this) || (radius == c.radius);
+        return radius == c.radius;
     }
 
     @Override
