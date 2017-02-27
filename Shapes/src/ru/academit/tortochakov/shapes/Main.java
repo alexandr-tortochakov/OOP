@@ -28,12 +28,12 @@ public class Main {
     }
 
     public static void printMaxArea(Shape[] shapes) {
-        Arrays.sort(shapes, (o1, o2) -> (int) (o1.getArea() - o2.getArea()));
+        Arrays.sort(shapes, (o1, o2) -> Double.compare(o1.getArea(), o2.getArea()));
         System.out.println(shapes[shapes.length - 1]);
     }
 
     public static void printSecondPerimeter(Shape[] shapes) {
-        Arrays.sort(shapes, (o1, o2) -> (int) (o1.getPerimeter() - o2.getPerimeter()));
+        Arrays.sort(shapes, (o1, o2) -> Double.compare(o1.getPerimeter(), o2.getPerimeter()));
         System.out.println(shapes[shapes.length - 2]);
     }
 }

@@ -1,7 +1,7 @@
 package ru.academit.tortochakov.shapes;
 
 public class Square implements Shape {
-    private int side;
+    private double side;
 
     public Square(int side) {
         this.side = side;
@@ -44,7 +44,7 @@ public class Square implements Shape {
     public int hashCode() {
         final int PRIME = 31;
         int hash = 1;
-        hash = PRIME * hash + side;
+        hash = PRIME * hash + (int) side;
         return hash;
     }
 }

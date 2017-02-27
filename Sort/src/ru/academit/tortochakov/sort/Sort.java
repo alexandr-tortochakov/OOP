@@ -26,30 +26,31 @@ public class Sort {
         try (Scanner scanner = new Scanner(new FileInputStream(args[0]));
              PrintWriter writer = new PrintWriter(args[1])
         ) {
-            ArrayList<Integer> digits = new ArrayList<>(100);
-            while (scanner.hasNextInt()) {
-                digits.add(scanner.nextInt());
-            }
 
             ArrayList<String> lines = new ArrayList<>(100);
             while (scanner.hasNextLine()) {
                 lines.add(scanner.nextLine());
             }
 
-            ArrayList<Integer> sortedNumbers = sortDigits(digits);
-            ArrayList<String> sortedLines = sortLines(lines);
+            ArrayList<Integer> digits = new ArrayList<>(100);
+            if (args[2].equals("-i")) {
+                for (String line : lines) {
+                    digits.add(Integer.parseInt(line));
+                }
+            }
 
             if (args[2].equals("-s")) {
-                for (int i = 0; i < sortedLines.size(); i++) {
-                    writer.println(sortedLines.get(i));
+                ArrayList<String> sortedLines = sortLines(lines);
+                for (String sortedLine : sortedLines) {
+                    writer.println(sortedLine);
                 }
-            } else if (args[3].equals("-a")) {
-                for (int i = 0; i < sortedNumbers.size(); i++) {
-                    writer.println(sortedNumbers.get(i));
+            } else {
+                ArrayList<Integer> sortedNumbers = sortDigits(digits);
+                if (args[3].equals("-d")) {
+                    Collections.reverse(sortedNumbers);
                 }
-            } else if (args[3].equals("-d")) {
-                for (int i = sortedNumbers.size() - 1; i >= 0; i--) {
-                    writer.println(sortedNumbers.get(i));
+                for (Integer sortedNumber : sortedNumbers) {
+                    writer.println(sortedNumber);
                 }
             }
         } catch (FileNotFoundException e) {
@@ -75,7 +76,19 @@ public class Sort {
     }
 
     public static ArrayList<String> sortLines(ArrayList<String> list) {
-        Collections.sort(list, (o1, o2) -> o1.compareTo(o2));
+        for (int i = 1; i < list.size(); i++) {
+            int j = i;
+            while (j > 0 && list.get(i).compareTo(list.get(j - 1)) < 0) {
+                j--;
+            }
+            String temp = list.get(i);
+            int n = 0;
+            for (int k = i; k > j; k--) {
+                list.set(i - n, list.get(k - 1));
+                n++;
+            }
+            list.set(j, temp);
+        }
         return list;
     }
 
