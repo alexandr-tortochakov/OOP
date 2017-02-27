@@ -41,6 +41,9 @@ public class Sort {
 
             if (args[2].equals("-s")) {
                 ArrayList<String> sortedLines = sortLines(lines);
+                if (args[2].equals("-d")) {
+                    Collections.reverse(sortedLines);
+                }
                 for (String sortedLine : sortedLines) {
                     writer.println(sortedLine);
                 }
@@ -61,16 +64,12 @@ public class Sort {
     public static ArrayList<Integer> sortDigits(ArrayList<Integer> list) {
         for (int i = 1; i < list.size(); i++) {
             int j = i;
-            while (j > 0 && list.get(i) < list.get(j - 1)) {
+            while (j > 0 && list.get(j) < list.get(j - 1)) {
+                int temp = list.get(j);
+                list.set(j, list.get(j - 1));
+                list.set(j - 1, temp);
                 j--;
             }
-            int temp = list.get(i);
-            int n = 0;
-            for (int k = i; k > j; k--) {
-                list.set(i - n, list.get(k - 1));
-                n++;
-            }
-            list.set(j, temp);
         }
         return list;
     }
@@ -78,16 +77,12 @@ public class Sort {
     public static ArrayList<String> sortLines(ArrayList<String> list) {
         for (int i = 1; i < list.size(); i++) {
             int j = i;
-            while (j > 0 && list.get(i).compareTo(list.get(j - 1)) < 0) {
+            while (j > 0 && list.get(j).compareTo(list.get(j - 1)) < 0) {
+                String temp = list.get(j);
+                list.set(j, list.get(j - 1));
+                list.set(j - 1, temp);
                 j--;
             }
-            String temp = list.get(i);
-            int n = 0;
-            for (int k = i; k > j; k--) {
-                list.set(i - n, list.get(k - 1));
-                n++;
-            }
-            list.set(j, temp);
         }
         return list;
     }
@@ -97,13 +92,15 @@ public class Sort {
                 "<output filename>/n" +
                 "<-i -a> integer ascending sorting/n" +
                 "<-i -d> integer descending sorting/n" +
-                "<-s -a> strings ascending sorting");
+                "<-s -a> strings ascending sorting/n" +
+                "<-s -d> strings descending sorting");
     }
 }
-
-//    java -cp <path to sort.class directory location> Sort <path to input filename> <path to output filename> -i -d
-//    descending sorting
 //    java -cp <path to sort.class directory location> Sort <path to input filename> <path to output filename> -i -a
 //    ascending sorting
+//    java -cp <path to sort.class directory location> Sort <path to input filename> <path to output filename> -i -d
+//    descending sorting
 //    java -cp <path to sort.class directory location> Sort <path to input filename> <path to output filename> -s -a
 //    strings ascending sorting
+//    java -cp <path to sort.class directory location> Sort <path to input filename> <path to output filename> -s -d
+//    strings descending sorting
