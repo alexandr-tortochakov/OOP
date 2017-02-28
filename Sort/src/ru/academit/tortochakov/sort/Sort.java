@@ -1,9 +1,11 @@
 package ru.academit.tortochakov.sort;
 
 import com.sun.javafx.collections.ArrayListenerHelper;
+import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
@@ -59,17 +61,20 @@ public class Sort {
         } catch (FileNotFoundException e) {
             System.out.println("Файл не найден");
         }
+//        catch (IOException t) {
+//            System.out.println("Закончилось место на диске");
+//        }
     }
 
     public static ArrayList<Integer> sortDigits(ArrayList<Integer> list) {
         for (int i = 1; i < list.size(); i++) {
             int j = i;
-            while (j > 0 && list.get(j) < list.get(j - 1)) {
-                int temp = list.get(j);
+            int temp = list.get(i);
+            while (j > 0 && temp < list.get(j - 1)) {
                 list.set(j, list.get(j - 1));
-                list.set(j - 1, temp);
                 j--;
             }
+            list.set(j, temp);
         }
         return list;
     }
@@ -77,12 +82,12 @@ public class Sort {
     public static ArrayList<String> sortLines(ArrayList<String> list) {
         for (int i = 1; i < list.size(); i++) {
             int j = i;
-            while (j > 0 && list.get(j).compareTo(list.get(j - 1)) < 0) {
-                String temp = list.get(j);
+            String temp = list.get(i);
+            while (j > 0 && temp.compareTo(list.get(j - 1)) < 0) {
                 list.set(j, list.get(j - 1));
-                list.set(j - 1, temp);
                 j--;
             }
+            list.set(j, temp);
         }
         return list;
     }
