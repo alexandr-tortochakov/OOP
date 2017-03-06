@@ -17,7 +17,6 @@ public class Triangle implements Shape {
         this.y3 = y3;
     }
 
-
     public double getWidth() {
         return Math.max(Math.max(x1, x2), x3) - Math.min(Math.min(x1, x2), x3);
     }
