@@ -9,8 +9,15 @@ public class CSV {
             help();
             return;
         }
-        try (Reader reader = new InputStreamReader(new FileInputStream(args[0]));
-             PrintWriter writer = new PrintWriter(args[1])) {
+        ArrayList<ArrayList<String>> table = parseCSV(args[0]);
+        if (table == null) {
+            return;
+        }
+        writeHTML(table, args[1]);
+    }
+
+    public static ArrayList<ArrayList<String>> parseCSV(String filename) {
+        try (Reader reader = new InputStreamReader(new FileInputStream(filename))) {
             ArrayList<ArrayList<String>> table = new ArrayList<>();
             StringBuilder builder = new StringBuilder();
             ArrayList<String> row = new ArrayList<>();
@@ -60,7 +67,16 @@ public class CSV {
                 table.add(row);
                 builder.setLength(0);
             }
+            return table;
+        } catch (IOException e) {
+            System.out.println("Файл не найден или чтение невозможно");
+            return null;
+        }
+    }
 
+    public static void writeHTML(ArrayList<ArrayList<String>> table, String filename) {
+        try (PrintWriter writer = new PrintWriter(filename)) {
+            StringBuilder builder = new StringBuilder();
             writer.println("<html>");
             writer.println("<head>");
             writer.println("<title>");
@@ -85,10 +101,8 @@ public class CSV {
             writer.println("</table>");
             writer.println("</body>");
             writer.println("</html>");
-        } catch (FileNotFoundException e) {
-            System.out.println("Файл не найден");
         } catch (IOException e) {
-            System.out.println("Неизвестная ошибка записи в файл");
+            System.out.println("Невозможно записать в файл");
         }
     }
 
