@@ -1,93 +1,93 @@
 package ru.academit.tortochakov.vector;
 
+import java.util.Arrays;
+
 public class Vector {
-    private double[] array;
+    private double[] vector;
 
     public Vector(double[] array) {
-        this.array = array.clone();
+        this.vector = array.clone();
     }
 
     public Vector(int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Длина должна быть больше 0");
         }
-        this.array = new double[capacity];
+        this.vector = new double[capacity];
     }
 
     public Vector(Vector v) {
-        array = v.array.clone();
+        vector = v.vector.clone();
     }
 
     public Vector(int capacity, double[] array) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Длина должна быть больше 0");
         }
-        this.array = array.clone();
-        if (capacity > this.getSize()) {
-            this.extendByZeros(capacity - this.getSize());
+        if (capacity <= array.length) {
+            this.vector = array.clone();
+        } else  {
+            this.vector = new double[capacity];
+            for (int i = 0; i < array.length; i++) {
+                vector[i] = array[i];
+            }
         }
     }
 
     private void extendByZeros(int nZeros) {
         double[] temp = new double[this.getSize() + nZeros];
         for (int i = 0; i < this.getSize(); i++) {
-            temp[i] = array[i];
+            temp[i] = vector[i];
         }
-        array = temp;
+        vector = temp;
     }
 
     public int getSize() {
-        return array.length;
+        return vector.length;
     }
 
     public double getValue(int index) {
-        if (index >= this.getSize()) {
+        if (index >= this.getSize() || index < 0) {
             throw new IllegalArgumentException("Выход за границы массива");
         }
-        return this.array[index];
+        return this.vector[index];
     }
 
     public void setValue(int index, double value) {
-        if (index >= this.getSize()) {
+        if (index >= this.getSize() || index < 0) {
             throw new IllegalArgumentException("Выход за границы массива");
         }
-        this.array[index] = value;
+        this.vector[index] = value;
     }
 
-    @Override
-    public String toString() {
-        String result = "{";
-        for (int i = 0; i < this.getSize(); i++) {
-            double temp = array[i];
-            result += temp + ", ";
+    private Vector sizeEqualization(Vector v) {
+        Vector temp = new Vector(v);
+        int sizeDiff = temp.getSize() - this.getSize();
+        if (sizeDiff > 0) {
+            this.extendByZeros(sizeDiff);
+        } else if (sizeDiff < 0) {
+            temp.extendByZeros(-sizeDiff);
         }
-        result = result.substring(0, result.length() - 2) + "}";
-        return result;
+        return temp;
     }
 
     public void add(Vector v) {
-        int size = v.getSize() - this.getSize();
-        if (size > 0) {
-            this.extendByZeros(size);
-        } else if (size < 0) {
-            v.extendByZeros(-size);
-        }
-        size = v.getSize();
-        for (int i = 0; i < size; i++) {
-            array[i] += v.getValue(i);
+        Vector temp = sizeEqualization(v);
+        for (int i = 0; i < temp.getSize(); i++) {
+            vector[i] += temp.getValue(i);
         }
     }
 
     public void subtract(Vector v) {
-        Vector temp = new Vector(v);
-        temp.turn();
-        this.add(temp);
+        Vector temp = sizeEqualization(v);
+        for (int i = 0; i < temp.getSize(); i++) {
+            vector[i] -= temp.getValue(i);
+        }
     }
 
     public void multiply(double number) {
-        int size = this.getSize();
-        for (int i = 0; i < size; i++) {
-            array[i] *= number;
+        for (int i = 0; i < this.getSize(); i++) {
+            vector[i] *= number;
         }
     }
 
@@ -97,9 +97,8 @@ public class Vector {
 
     public double getLength() {
         double length = 0;
-        for (int i = 0; i < array.length; i++) {
-            double temp = Math.pow(this.getValue(i), 2);
-            length += temp;
+        for (int i = 0; i < vector.length; i++) {
+            length += Math.pow(this.getValue(i), 2);
         }
         return Math.sqrt(length);
     }
@@ -118,10 +117,21 @@ public class Vector {
 
     public static double dotProduct(Vector v1, Vector v2) {
         double sum = 0;
-        for (int i = 0; i < Math.min(v1.getSize(), v2.getSize()); i++) {
+        int minSize = Math.min(v1.getSize(), v2.getSize());
+        for (int i = 0; i < minSize; i++) {
             sum += v1.getValue(i) * v2.getValue(i);
         }
         return sum;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder("{");
+        for (int i = 0; i < this.getSize() - 1; i++) {
+            builder.append(vector[i]).append(", ");
+        }
+        builder.append(vector[this.getSize() - 1]).append("}");
+        return builder.toString();
     }
 
     @Override
@@ -137,7 +147,7 @@ public class Vector {
             return false;
         }
         for (int i = 0; i < this.getSize(); i++) {
-            if (Math.abs(this.array[i] - v.array[i]) > 0.0001) {
+            if (Math.abs(this.vector[i] - v.vector[i]) == 0) {
                 return false;
             }
         }
@@ -146,11 +156,6 @@ public class Vector {
 
     @Override
     public int hashCode() {
-        int hash = 1;
-        final int PRIME = 37;
-        for (int i = 0; i < this.getSize(); i++) {
-            hash = hash * PRIME + (int) array[i];
-        }
-        return hash;
+        return Arrays.hashCode(vector);
     }
 }

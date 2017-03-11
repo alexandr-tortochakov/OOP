@@ -5,10 +5,14 @@ import java.util.ArrayList;
 
 public class CSV {
     public static void main(String[] args) {
-        try (Reader reader = new InputStreamReader(new FileInputStream("D:/input.csv"));
-             PrintWriter writer = new PrintWriter("D:/output.html")) {
+        if (args.length != 2) {
+            help();
+            return;
+        }
+        try (Reader reader = new InputStreamReader(new FileInputStream(args[0]));
+             PrintWriter writer = new PrintWriter(args[1])) {
             ArrayList<ArrayList<String>> table = new ArrayList<>();
-            String cell = "";
+            StringBuilder builder = new StringBuilder();
             ArrayList<String> row = new ArrayList<>();
             int r;
             int quotesNumber = 0;
@@ -20,36 +24,41 @@ public class CSV {
                 if (ch == '"') {
                     quotesNumber++;
                 }
+                boolean isEven = quotesNumber % 2 == 0;
                 if (ch != ',' && ch != '\n') {
-                    cell += ch;
-                } else if (ch == ',' && quotesNumber % 2 != 0) {
-                    cell += ch;
-                } else if (ch == ',' && quotesNumber % 2 == 0) {
+                    builder.append(ch);
+                } else if (ch == ',' && !isEven) {
+                    builder.append(ch);
+                } else if (ch == ',' && isEven) {
                     if (quotesNumber > 0) {
-                        cell = cell.substring(1, cell.length() - 1);
+                        row.add(builder.substring(1, builder.length() - 1));
+                    } else {
+                        row.add(builder.toString());
                     }
-                    row.add(cell);
-                    cell = "";
+                    builder.setLength(0);
                     quotesNumber = 0;
-                } else if (ch == '\n' && quotesNumber % 2 != 0) {
-                    cell += ch;
-                } else if (ch == '\n' && quotesNumber % 2 == 0) {
+                } else if (ch == '\n' && !isEven) {
+                    builder.append(ch);
+                } else if (ch == '\n' && isEven) {
                     if (quotesNumber > 0) {
-                        cell = cell.substring(1, cell.length() - 1);
+                        row.add(builder.substring(1, builder.length() - 1));
+                    } else {
+                        row.add(builder.toString());
                     }
-                    row.add(cell);
-                    cell = "";
-                    table.add((ArrayList<String>) row.clone());
-                    row.clear();
+                    builder.setLength(0);
+                    table.add(row);
+                    row = new ArrayList<>();
                     quotesNumber = 0;
                 }
             }
-            if (!cell.equals("")) {
+            if (!builder.toString().equals("")) {
                 if (quotesNumber > 0) {
-                    cell = cell.substring(1, cell.length() - 1);
+                    row.add(builder.substring(1, builder.length() - 1));
+                } else {
+                    row.add(builder.toString());
                 }
-                row.add(cell);
-                table.add((ArrayList<String>) row.clone());
+                table.add(row);
+                builder.setLength(0);
             }
 
             writer.println("<html>");
@@ -61,13 +70,15 @@ public class CSV {
             writer.println("</head>");
             writer.println("<body>");
             writer.println("<table border>");
-            for (ArrayList<String> aTable : table) {
+            for (ArrayList<String> aRow : table) {
                 writer.println("<tr>");
-                row = aTable;
-                for (String aRow : row) {
-                    cell = aRow;
-                    cell = cell.replaceAll("\n", "<br/>").replaceAll("\"\"", "\"");
-                    writer.println("<td>" + cell + "</td>");
+                for (String aCell : aRow) {
+                    builder.append("<td>")
+                            .append(aCell.replaceAll("\n", "<br/>")
+                                    .replaceAll("\"\"", "\""))
+                            .append("</td>");
+                    writer.println(builder.toString());
+                    builder.setLength(0);
                 }
                 writer.println("</tr>");
             }
@@ -77,7 +88,11 @@ public class CSV {
         } catch (FileNotFoundException e) {
             System.out.println("Файл не найден");
         } catch (IOException e) {
-            System.out.println("Непонятно че произошло");
+            System.out.println("Неизвестная ошибка записи в файл");
         }
+    }
+
+    public static void help() {
+        System.out.println("Usage:\n\tCSV <input filename> <output filename>");
     }
 }
