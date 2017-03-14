@@ -24,21 +24,20 @@ public class Vector {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Длина должна быть больше 0");
         }
-        if (capacity <= array.length) {
+        if (capacity == array.length) {
             this.vector = array.clone();
-        } else  {
+        } else if (capacity < array.length) {
             this.vector = new double[capacity];
-            for (int i = 0; i < array.length; i++) {
-                vector[i] = array[i];
-            }
+            System.arraycopy(array, 0, vector, 0, this.getSize());
+        } else {
+            this.vector = new double[capacity];
+            System.arraycopy(array, 0, vector, 0, array.length);
         }
     }
 
     private void extendByZeros(int nZeros) {
         double[] temp = new double[this.getSize() + nZeros];
-        for (int i = 0; i < this.getSize(); i++) {
-            temp[i] = vector[i];
-        }
+        System.arraycopy(vector, 0, temp, 0, this.getSize());
         vector = temp;
     }
 
@@ -60,28 +59,28 @@ public class Vector {
         this.vector[index] = value;
     }
 
-    private Vector sizeEqualization(Vector v) {
-        Vector temp = new Vector(v);
-        int sizeDiff = temp.getSize() - this.getSize();
-        if (sizeDiff > 0) {
-            this.extendByZeros(sizeDiff);
-        } else if (sizeDiff < 0) {
-            temp.extendByZeros(-sizeDiff);
+    private void sizeEqualization(Vector v) {
+        int sizeDiff = this.getSize() - v.getSize();
+        if (sizeDiff < 0) {
+            this.extendByZeros(-sizeDiff);
         }
-        return temp;
     }
 
     public void add(Vector v) {
-        Vector temp = sizeEqualization(v);
-        for (int i = 0; i < temp.getSize(); i++) {
-            vector[i] += temp.getValue(i);
+        if (this.getSize() < v.getSize()) {
+            sizeEqualization(v);
+        }
+        for (int i = 0; i < v.getSize(); i++) {
+            vector[i] += v.getValue(i);
         }
     }
 
     public void subtract(Vector v) {
-        Vector temp = sizeEqualization(v);
-        for (int i = 0; i < temp.getSize(); i++) {
-            vector[i] -= temp.getValue(i);
+        if (this.getSize() < v.getSize()) {
+            sizeEqualization(v);
+        }
+        for (int i = 0; i < v.getSize(); i++) {
+            vector[i] -= v.getValue(i);
         }
     }
 
@@ -147,7 +146,7 @@ public class Vector {
             return false;
         }
         for (int i = 0; i < this.getSize(); i++) {
-            if (Math.abs(this.vector[i] - v.vector[i]) == 0) {
+            if ((this.vector[i] - v.vector[i]) == 0) {
                 return false;
             }
         }

@@ -2,9 +2,9 @@ package ru.academit.tortochakov.vector;
 
 public class Main {
     public static void main(String[] args) {
-        double[] array = {3, 4, 6, 7};
+        double[] array = {3, 4, 4, 4 };
         Vector v1 = new Vector(array);
-        double[] arr2 = {3, 4, 6, 7.};
+        double[] arr2 = {3, 4, 6, 7, 6, 8, 4, 6, 7};
         Vector v2 = new Vector(arr2);
 
         System.out.print("v1 = v1 + v2: ");

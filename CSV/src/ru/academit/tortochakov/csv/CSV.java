@@ -17,13 +17,13 @@ public class CSV {
     }
 
     public static ArrayList<ArrayList<String>> parseCSV(String filename) {
-        try (Reader reader = new InputStreamReader(new FileInputStream(filename))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             ArrayList<ArrayList<String>> table = new ArrayList<>();
             StringBuilder builder = new StringBuilder();
             ArrayList<String> row = new ArrayList<>();
             int r;
             int quotesNumber = 0;
-            while ((r = reader.read()) != -1) {
+            while ((r = br.read()) != -1) {
                 char ch = (char) r;
                 if (ch == '\r') {
                     continue;
@@ -32,30 +32,41 @@ public class CSV {
                     quotesNumber++;
                 }
                 boolean isEven = quotesNumber % 2 == 0;
-                if (ch != ',' && ch != '\n') {
+                if (ch != ',' && ch != '\n' && ch != '>' && ch != '<' && ch != '&') {
                     builder.append(ch);
-                } else if (ch == ',' && !isEven) {
-                    builder.append(ch);
-                } else if (ch == ',' && isEven) {
-                    if (quotesNumber > 0) {
-                        row.add(builder.substring(1, builder.length() - 1));
+                } else if (ch == ',') {
+                    if (isEven) {
+                        if (quotesNumber > 0) {
+                            row.add(builder.substring(1, builder.length() - 1));
+                        } else {
+                            row.add(builder.toString());
+                        }
+                        builder.setLength(0);
+                        quotesNumber = 0;
                     } else {
-                        row.add(builder.toString());
+                        builder.append(ch);
                     }
-                    builder.setLength(0);
-                    quotesNumber = 0;
-                } else if (ch == '\n' && !isEven) {
-                    builder.append(ch);
-                } else if (ch == '\n' && isEven) {
-                    if (quotesNumber > 0) {
-                        row.add(builder.substring(1, builder.length() - 1));
+                } else if (ch == '\n'){
+                    if (isEven) {
+                        if (quotesNumber > 0) {
+                            row.add(builder.substring(1, builder.length() - 1));
+                        } else {
+                            row.add(builder.toString());
+                        }
+                        builder.setLength(0);
+                        table.add(row);
+                        row = new ArrayList<>();
+                        quotesNumber = 0;
                     } else {
-                        row.add(builder.toString());
+                        builder.append(ch);
+
                     }
-                    builder.setLength(0);
-                    table.add(row);
-                    row = new ArrayList<>();
-                    quotesNumber = 0;
+                } else if (ch == '>') {
+                    builder.append("&gt");
+                } else if (ch == '<') {
+                    builder.append("&lt");
+                } else {
+                    builder.append("&amp");
                 }
             }
             if (!builder.toString().equals("")) {
@@ -86,9 +97,9 @@ public class CSV {
             writer.println("</head>");
             writer.println("<body>");
             writer.println("<table border>");
-            for (ArrayList<String> aRow : table) {
+            for (ArrayList<String> row : table) {
                 writer.println("<tr>");
-                for (String aCell : aRow) {
+                for (String aCell : row) {
                     builder.append("<td>")
                             .append(aCell.replaceAll("\n", "<br/>")
                                     .replaceAll("\"\"", "\""))
