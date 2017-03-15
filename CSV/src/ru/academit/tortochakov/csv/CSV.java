@@ -62,11 +62,11 @@ public class CSV {
 
                     }
                 } else if (ch == '>') {
-                    builder.append("&gt");
+                    builder.append("&gt;");
                 } else if (ch == '<') {
-                    builder.append("&lt");
+                    builder.append("&lt;");
                 } else {
-                    builder.append("&amp");
+                    builder.append("&amp;");
                 }
             }
             if (!builder.toString().equals("")) {

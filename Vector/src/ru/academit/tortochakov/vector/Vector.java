@@ -24,15 +24,8 @@ public class Vector {
         if (capacity <= 0) {
             throw new IllegalArgumentException("Длина должна быть больше 0");
         }
-        if (capacity == array.length) {
-            this.vector = array.clone();
-        } else if (capacity < array.length) {
-            this.vector = new double[capacity];
-            System.arraycopy(array, 0, vector, 0, this.getSize());
-        } else {
-            this.vector = new double[capacity];
-            System.arraycopy(array, 0, vector, 0, array.length);
-        }
+        this.vector = Arrays.copyOf(array, capacity);
+
     }
 
     private void extendByZeros(int nZeros) {
