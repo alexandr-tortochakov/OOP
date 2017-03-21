@@ -6,9 +6,9 @@ public class MyList implements List {
     private int length;
     private Object[] items;
 
-    public MyList(int size) {
-        length = size;
-        items = new Object[size];
+
+    public MyList(int capacity) {
+        items = new Object[capacity];
     }
 
     @Override
@@ -23,21 +23,22 @@ public class MyList implements List {
 
     @Override
     public boolean contains(Object o) {
-        for (int i = 0; i < length; i++) {
-            if (o == null ? get(i) == null : o.equals(get(i))) {
-                return true;
-            }
-        }
-        return false;
+        return indexOf(o) >= 0;
     }
 
     public void ensureCapacity(int minCapacity) {
-        while (items.length < minCapacity) {
-            increaseCapacity();
+        if (items.length >= minCapacity) {
+            return;
         }
+        Object[] old = items;
+        items = new Object[minCapacity];
+        System.arraycopy(old, 0, items, 0, old.length);
     }
 
     public void trimToSize() {
+        if (items.length == length) {
+            return;
+        }
         Object[] old = items;
         items = new Object[length];
         System.arraycopy(old, 0, items, 0, length);
@@ -54,7 +55,10 @@ public class MyList implements List {
         for (int i = 0; i < length - 1; i++) {
             builder.append(items[i]).append(", ");
         }
-        builder.append(items[length - 1]).append("}");
+        if (length - 1 >= 0) {
+            builder.append(items[length - 1]);
+        }
+        builder.append("}");
         return builder.toString();
     }
 
@@ -66,9 +70,7 @@ public class MyList implements List {
 
     @Override
     public boolean add(Object o) {
-        if (length >= items.length) {
-            increaseCapacity();
-        }
+        ensureCapacity(items.length * 2);
         items[length] = o;
         length++;
         return true;
@@ -77,7 +79,7 @@ public class MyList implements List {
     @Override
     public boolean remove(Object o) {
         for (int i = 0; i < length; i++) {
-            if (o == null ? get(i) == null : o.equals(get(i))) {
+            if (Objects.equals(o, items[i])) {
                 remove(i);
                 return true;
             }
@@ -87,9 +89,7 @@ public class MyList implements List {
 
     @Override
     public boolean addAll(Collection collection) {
-        while (items.length < collection.size() + length) {
-            increaseCapacity();
-        }
+        ensureCapacity(length + collection.size());
         System.arraycopy(collection.toArray(), 0, items, length, collection.size());
         length += collection.size();
         return true;
@@ -98,11 +98,9 @@ public class MyList implements List {
     @Override
     public boolean addAll(int index, Collection collection) {
         if (index > length || index < 0) {
-            throw new IndexOutOfBoundsException("Выход за пределы массива");
+            throw new IndexOutOfBoundsException("Выход за границы списка");
         }
-        while (items.length < collection.size() + length) {
-            increaseCapacity();
-        }
+        ensureCapacity(length + collection.size());
         System.arraycopy(items, index, items, index + collection.size(), length - index);
         System.arraycopy(collection.toArray(), 0, items, index, collection.size());
         length += collection.size();
@@ -117,7 +115,7 @@ public class MyList implements List {
     @Override
     public Object get(int index) {
         if (index >= length || index < 0) {
-            throw new IndexOutOfBoundsException("Выход за пределы массива");
+            throw new IndexOutOfBoundsException("Выход за границы списка");
         }
         return items[index];
     }
@@ -125,7 +123,7 @@ public class MyList implements List {
     @Override
     public Object set(int index, Object o) {
         if (index >= length || index < 0) {
-            throw new IndexOutOfBoundsException("Выход за пределы массива");
+            throw new IndexOutOfBoundsException("Выход за границы списка");
         }
         return items[index] = o;
     }
@@ -133,26 +131,18 @@ public class MyList implements List {
     @Override
     public void add(int index, Object o) {
         if (index > length || index < 0) {
-            throw new IndexOutOfBoundsException("Выход за пределы массива");
+            throw new IndexOutOfBoundsException("Выход за границы списка");
         }
-        if (length >= items.length) {
-            increaseCapacity();
-        }
+        ensureCapacity(items.length * 2);
         System.arraycopy(items, index, items, index + 1, length - index);
         items[index] = o;
         length++;
     }
 
-    private void increaseCapacity() {
-        Object[] old = items;
-        items = new Object[old.length * 2];
-        System.arraycopy(old, 0, items, 0, old.length);
-    }
-
     @Override
     public Object remove(int index) {
         if (index >= length || index < 0) {
-            throw new IndexOutOfBoundsException("Выход за пределы массива");
+            throw new IndexOutOfBoundsException("Выход за границы списка");
         }
         Object o = items[index];
         if (index < length - 1) {
@@ -165,7 +155,7 @@ public class MyList implements List {
     @Override
     public int indexOf(Object o) {
         for (int i = 0; i < length; i++) {
-            if (o == null ? get(i) == null : o.equals(get(i))) {
+            if (Objects.equals(o, items[i])) {
                 return i;
             }
         }
@@ -176,7 +166,7 @@ public class MyList implements List {
     public int lastIndexOf(Object o) {
         int lastIndex = -1;
         for (int i = 0; i < length; i++) {
-            if (o == null ? get(i) == null : o.equals(get(i))) {
+            if (Objects.equals(o, items[i])) {
                 lastIndex = i;
             }
         }
@@ -196,7 +186,7 @@ public class MyList implements List {
     @Override
     public List subList(int fromIndex, int toIndex) {
         if (fromIndex < 0 || toIndex > length) {
-            throw new IndexOutOfBoundsException("Выход за пределы массива");
+            throw new IndexOutOfBoundsException("Выход за границы списка");
         }
         if (fromIndex > toIndex) {
             throw new IllegalArgumentException("Индекс начала отрезка должен быть меньше конца");
@@ -232,7 +222,7 @@ public class MyList implements List {
 
     @Override
     public boolean containsAll(Collection collection) {
-        for (Object o: collection) {
+        for (Object o : collection) {
             if (!contains(o)) {
                 return false;
             }
@@ -242,7 +232,7 @@ public class MyList implements List {
 
     @Override
     public Object[] toArray(Object[] objects) {
-        if (objects.length < length) {
+        if (objects == null || objects.length < length) {
             objects = new Object[length];
         }
         System.arraycopy(items, 0, objects, 0, length);

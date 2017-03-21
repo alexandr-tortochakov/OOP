@@ -9,8 +9,8 @@ public class Main {
         MyList myList = new MyList(3);
         ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(1, 4, 5, 6, 8));
 
-        System.out.println("myList.set(0, 2): ");
-        myList.set(0, 2);
+        System.out.println("myList.add(2): ");
+        myList.add(2);
         System.out.println(myList + "\n");
 
         System.out.println("myList.addAll(arrayList): ");
@@ -49,5 +49,7 @@ public class Main {
 
         System.out.println("myList.containsAll(arrayList)):");
         System.out.println(myList.containsAll(arrayList));
+        MyList myList1 = new MyList(0);
+        System.out.println(myList1);
     }
 }
