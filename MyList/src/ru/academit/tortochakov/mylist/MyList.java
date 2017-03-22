@@ -2,7 +2,7 @@ package ru.academit.tortochakov.mylist;
 
 import java.util.*;
 
-public class MyList implements List {
+public class MyList<T> implements List<T> {
     private int length;
     private Object[] items;
 
@@ -113,11 +113,12 @@ public class MyList implements List {
     }
 
     @Override
-    public Object get(int index) {
+    @SuppressWarnings("unchecked")
+    public T get(int index) {
         if (index >= length || index < 0) {
             throw new IndexOutOfBoundsException("Выход за границы списка");
         }
-        return items[index];
+        return (T) items[index];
     }
 
     @Override
@@ -140,7 +141,8 @@ public class MyList implements List {
     }
 
     @Override
-    public Object remove(int index) {
+    @SuppressWarnings("unchecked")
+    public T remove(int index) {
         if (index >= length || index < 0) {
             throw new IndexOutOfBoundsException("Выход за границы списка");
         }
@@ -149,7 +151,7 @@ public class MyList implements List {
             System.arraycopy(items, index + 1, items, index, length - index - 1);
         }
         length--;
-        return o;
+        return (T) o;
     }
 
     @Override
@@ -231,9 +233,10 @@ public class MyList implements List {
     }
 
     @Override
-    public Object[] toArray(Object[] objects) {
+    @SuppressWarnings("unchecked")
+    public <E> E[] toArray(E[] objects) {
         if (objects == null || objects.length < length) {
-            objects = new Object[length];
+            objects = (E[])new Object[length];
         }
         System.arraycopy(items, 0, objects, 0, length);
         return objects;
