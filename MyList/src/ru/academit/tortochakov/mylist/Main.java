@@ -6,7 +6,7 @@ import java.util.Arrays;
 public class Main {
     public static void main(String[] args) {
 
-        MyList myList = new MyList(3);
+        MyList<Integer> myList = new MyList<>(3);
         ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(1, 4, 5, 6, 8));
 
         System.out.println("myList.add(2): ");

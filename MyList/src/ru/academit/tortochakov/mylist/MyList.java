@@ -6,9 +6,33 @@ public class MyList<T> implements List<T> {
     private int length;
     private Object[] items;
 
-
     public MyList(int capacity) {
         items = new Object[capacity];
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return null;
+    }
+
+    @Override
+    public int indexOf(Object o) {
+        for (int i = 0; i < length; i++) {
+            if (Objects.equals(o, items[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public ListIterator<T> listIterator() {
+        return null;
+    }
+
+    @Override
+    public ListIterator<T> listIterator(int i) {
+        return null;
     }
 
     @Override
@@ -45,11 +69,6 @@ public class MyList<T> implements List<T> {
     }
 
     @Override
-    public Iterator iterator() {
-        return null;
-    }
-
-    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("{");
         for (int i = 0; i < length - 1; i++) {
@@ -69,7 +88,7 @@ public class MyList<T> implements List<T> {
     }
 
     @Override
-    public boolean add(Object o) {
+    public boolean add(T o) {
         ensureCapacity(items.length * 2);
         items[length] = o;
         length++;
@@ -88,7 +107,7 @@ public class MyList<T> implements List<T> {
     }
 
     @Override
-    public boolean addAll(Collection collection) {
+    public boolean addAll(Collection<? extends T> collection) {
         ensureCapacity(length + collection.size());
         System.arraycopy(collection.toArray(), 0, items, length, collection.size());
         length += collection.size();
@@ -96,7 +115,7 @@ public class MyList<T> implements List<T> {
     }
 
     @Override
-    public boolean addAll(int index, Collection collection) {
+    public boolean addAll(int index, Collection<? extends T> collection) {
         if (index > length || index < 0) {
             throw new IndexOutOfBoundsException("Выход за границы списка");
         }
@@ -122,21 +141,24 @@ public class MyList<T> implements List<T> {
     }
 
     @Override
-    public Object set(int index, Object o) {
+    @SuppressWarnings("unchecked")
+    public T set(int index, T o) {
         if (index >= length || index < 0) {
             throw new IndexOutOfBoundsException("Выход за границы списка");
         }
-        return items[index] = o;
+        T temp = (T) items[index];
+        items[index] = o;
+        return temp;
     }
 
     @Override
-    public void add(int index, Object o) {
+    public void add(int index, T t) {
         if (index > length || index < 0) {
             throw new IndexOutOfBoundsException("Выход за границы списка");
         }
         ensureCapacity(items.length * 2);
         System.arraycopy(items, index, items, index + 1, length - index);
-        items[index] = o;
+        items[index] = t;
         length++;
     }
 
@@ -155,8 +177,8 @@ public class MyList<T> implements List<T> {
     }
 
     @Override
-    public int indexOf(Object o) {
-        for (int i = 0; i < length; i++) {
+    public int lastIndexOf(Object o) {
+        for (int i = length - 1; i >= 0; i++) {
             if (Objects.equals(o, items[i])) {
                 return i;
             }
@@ -164,29 +186,9 @@ public class MyList<T> implements List<T> {
         return -1;
     }
 
-    @Override
-    public int lastIndexOf(Object o) {
-        int lastIndex = -1;
-        for (int i = 0; i < length; i++) {
-            if (Objects.equals(o, items[i])) {
-                lastIndex = i;
-            }
-        }
-        return lastIndex;
-    }
 
     @Override
-    public ListIterator listIterator() {
-        return null;
-    }
-
-    @Override
-    public ListIterator listIterator(int i) {
-        return null;
-    }
-
-    @Override
-    public List subList(int fromIndex, int toIndex) {
+    public List<T> subList(int fromIndex, int toIndex) {
         if (fromIndex < 0 || toIndex > length) {
             throw new IndexOutOfBoundsException("Выход за границы списка");
         }
@@ -195,11 +197,11 @@ public class MyList<T> implements List<T> {
         }
         Object[] list = new Object[toIndex - fromIndex];
         System.arraycopy(items, fromIndex, list, 0, toIndex - fromIndex);
-        return Arrays.asList(list);
+        return Arrays.asList((T[]) list);
     }
 
     @Override
-    public boolean retainAll(Collection collection) {
+    public boolean retainAll(Collection<?> collection) {
         int k = 0;
         for (int i = 0; i < length + k; i++) {
             if (!collection.contains(items[i - k])) {
@@ -207,11 +209,11 @@ public class MyList<T> implements List<T> {
                 k++;
             }
         }
-        return true;
+        return k != 0;
     }
 
     @Override
-    public boolean removeAll(Collection collection) {
+    public boolean removeAll(Collection<?> collection) {
         int k = 0;
         for (int i = 0; i < length + k; i++) {
             if (collection.contains(items[i - k])) {
@@ -219,11 +221,11 @@ public class MyList<T> implements List<T> {
                 k++;
             }
         }
-        return true;
+        return k != 0;
     }
 
     @Override
-    public boolean containsAll(Collection collection) {
+    public boolean containsAll(Collection<?> collection) {
         for (Object o : collection) {
             if (!contains(o)) {
                 return false;
@@ -236,9 +238,12 @@ public class MyList<T> implements List<T> {
     @SuppressWarnings("unchecked")
     public <E> E[] toArray(E[] objects) {
         if (objects == null || objects.length < length) {
-            objects = (E[])new Object[length];
+            objects = (E[]) new Object[length];
+        } else if (objects.length > length) {
+            objects[length] = null;
         }
         System.arraycopy(items, 0, objects, 0, length);
         return objects;
     }
 }
+
