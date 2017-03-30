@@ -89,7 +89,7 @@ public class MyList<T> implements List<T> {
 
     @Override
     public boolean add(T o) {
-        ensureCapacity(items.length * 2);
+        ensureCapacity(length * 2);
         items[length] = o;
         length++;
         return true;
@@ -156,7 +156,7 @@ public class MyList<T> implements List<T> {
         if (index > length || index < 0) {
             throw new IndexOutOfBoundsException("Выход за границы списка");
         }
-        ensureCapacity(items.length * 2);
+        ensureCapacity(length * 2);
         System.arraycopy(items, index, items, index + 1, length - index);
         items[index] = t;
         length++;
@@ -178,7 +178,7 @@ public class MyList<T> implements List<T> {
 
     @Override
     public int lastIndexOf(Object o) {
-        for (int i = length - 1; i >= 0; i++) {
+        for (int i = length - 1; i >= 0; i--) {
             if (Objects.equals(o, items[i])) {
                 return i;
             }
@@ -238,7 +238,7 @@ public class MyList<T> implements List<T> {
     @SuppressWarnings("unchecked")
     public <E> E[] toArray(E[] objects) {
         if (objects == null || objects.length < length) {
-            objects = (E[]) new Object[length];
+            return (E[]) Arrays.copyOf(items, length, objects.getClass());
         } else if (objects.length > length) {
             objects[length] = null;
         }

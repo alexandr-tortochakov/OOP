@@ -51,5 +51,7 @@ public class Main {
         System.out.println(myList.containsAll(arrayList));
         MyList myList1 = new MyList(0);
         System.out.println(myList1);
+
+        Integer [] x = myList.toArray(new Integer[2]);
     }
 }
