@@ -1,5 +1,7 @@
 package ru.academit.tortochakov.mylist;
 
+import com.sun.xml.internal.bind.v2.TODO;
+
 import java.util.*;
 
 public class MyList<T> implements List<T> {
@@ -237,7 +239,7 @@ public class MyList<T> implements List<T> {
     @Override
     @SuppressWarnings("unchecked")
     public <E> E[] toArray(E[] objects) {
-        if (objects == null || objects.length < length) {
+        if (objects.length < length) {
             return (E[]) Arrays.copyOf(items, length, objects.getClass());
         } else if (objects.length > length) {
             objects[length] = null;

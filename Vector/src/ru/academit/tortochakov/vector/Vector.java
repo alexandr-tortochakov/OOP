@@ -76,6 +76,12 @@ public class Vector {
             vector[i] -= v.getValue(i);
         }
     }
+    public void remove(int index) {
+        double[] array = new double[getSize() - 1];
+        System.arraycopy(vector, 0, array, 0, index);
+        System.arraycopy(vector, index + 1, array, index, vector.length - index - 1);
+        vector = array;
+    }
 
     public void multiply(double number) {
         for (int i = 0; i < this.getSize(); i++) {
