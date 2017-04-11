@@ -11,11 +11,11 @@ import java.util.NoSuchElementException;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LinkedListTest {
-    private LinkedList<Integer> linkedList = new LinkedList<>();
-    private LinkedList<Integer> linkedListEmpty = new LinkedList<>();
-    private LinkedList<Integer> linkedListDoubles = new LinkedList<>();
-    private LinkedList<Integer> linkedListOne = new LinkedList<>();
-    private LinkedList<Integer> linkedListTwo = new LinkedList<>();
+    private LinkedList<Integer> linkedList;
+    private LinkedList<Integer> linkedListEmpty;
+    private LinkedList<Integer> linkedListDoubles;
+    private LinkedList<Integer> linkedListOne;
+    private LinkedList<Integer> linkedListTwo;
 
 
     @BeforeEach

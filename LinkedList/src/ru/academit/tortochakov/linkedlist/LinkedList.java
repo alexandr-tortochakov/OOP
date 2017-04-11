@@ -3,14 +3,59 @@ package ru.academit.tortochakov.linkedlist;
 import java.util.*;
 
 public class LinkedList<T> implements List<T>, Deque<T> {
-    private LinkedList<T> head;
-    private LinkedList<T> tail;
-    private T data;
-    private LinkedList<T> next;
-    private LinkedList<T> prev;
+    private class Node {
+        private T data;
+        private Node next;
+        private Node prev;
 
-    public LinkedList() {
+        public Node(T data) {
+            this.data = data;
+        }
+
+        public Node getNext() {
+            return next;
+        }
+
+        public void setNext(Node next) {
+            this.next = next;
+        }
+
+        public Node getPrev() {
+            return prev;
+        }
+
+        public void setPrev(Node prev) {
+            this.prev = prev;
+        }
+
+        public T getData() {
+            return data;
+        }
+
+        public T setData(T newData) {
+            T temp = data;
+            data = newData;
+            return temp;
+        }
+
+        public boolean hasNext() {
+            return next != null;
+        }
+
+        public boolean hasPrev() {
+            return prev != null;
+        }
+
+        public void link(Node next) {
+            this.next = next;
+            next.prev = this;
+        }
     }
+
+    private Node head;
+    private Node tail;
+    private int size;
+
 
     public LinkedList(Collection<? extends T> collection) {
         for (T l : collection) {
@@ -20,36 +65,35 @@ public class LinkedList<T> implements List<T>, Deque<T> {
 
     @Override
     public void addFirst(T t) {
-        LinkedList<T> temp = new LinkedList<T>();
-        temp.data = t;
+        Node temp = new Node(t);
         if (head == null) {
             head = temp;
             tail = temp;
-            head.next = tail;
-            tail.prev = head;
-            return;
+        } else if (head == tail) {
+            head = temp;
+            head.link(tail);
+        } else {
+            temp.link(head);
+            head = temp;
         }
-        head.prev = temp;
-        temp.next = head;
-        head = temp;
+        size++;
     }
 
     @Override
     public void addLast(T t) {
-        LinkedList<T> temp = new LinkedList<>();
-        temp.data = t;
+        Node temp = new Node(t);
         if (head == null) {
             head = temp;
             tail = temp;
-            return;
-        }
-        if (head == tail) {
+
+        } else if (head == tail) {
             tail = temp;
-           link(head, tail);
-            return;
+            head.link(tail);
+        } else {
+            tail.link(temp);
+            tail = temp;
         }
-        link(tail,temp);
-        tail = temp;
+        size++;
     }
 
     public String toString() {
@@ -57,11 +101,11 @@ public class LinkedList<T> implements List<T>, Deque<T> {
             return "";
         }
         StringBuilder builder = new StringBuilder();
-        builder.append(head.data).append(", ");
-        LinkedList<T> temp = head;
-        while (temp.next != null) {
-            builder.append(temp.next.data).append(", ");
-            temp = temp.next;
+        builder.append(head.getData()).append(", ");
+        Node temp = head;
+        while (temp.hasNext()) {
+            builder.append(temp.getNext().getData()).append(", ");
+            temp = temp.getNext();
         }
         return builder.substring(0, builder.length() - 2);
     }
@@ -83,7 +127,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
         if (head == null) {
             return null;
         }
-        T temp = head.data;
+        T temp = head.getData();
         remove(head);
         return temp;
     }
@@ -93,7 +137,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
         if (tail == null) {
             return null;
         }
-        T temp = tail.data;
+        T temp = tail.getData();
         remove(tail);
         return temp;
     }
@@ -113,7 +157,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
         if (head == null) {
             throw new NoSuchElementException("Список пустой");
         }
-        return head.data;
+        return head.getData();
     }
 
     @Override
@@ -121,7 +165,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
         if (head == null) {
             throw new NoSuchElementException("Список пустой");
         }
-        return tail.data;
+        return tail.getData();
     }
 
     @Override
@@ -197,13 +241,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
 
     @Override
     public int size() {
-        int count = 0;
-        LinkedList<T> temp = head;
-        while (temp != null) {
-            temp = temp.next;
-            count++;
-        }
-        return count;
+        return size;
     }
 
     @Override
@@ -213,10 +251,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
 
     @Override
     public boolean contains(Object o) {
-        if (indexOf(o) == -1) {
-            return false;
-        }
-        return true;
+        return indexOf(o) != -1;
     }
 
     @Override
@@ -226,16 +261,17 @@ public class LinkedList<T> implements List<T>, Deque<T> {
 
     @Override
     public Object[] toArray() {
-        Object[] array = new Object[size()];
-        LinkedList<T> temp = head;
+        Object[] array = new Object[size];
+        Node temp = head;
         int i = 0;
         while (temp != null) {
-            array[i++] = temp.data;
-            temp = temp.next;
+            array[i++] = temp.getData();
+            temp = temp.getNext();
         }
         return array;
     }
 
+    @SuppressWarnings("unchecked")
     public <E> E[] toArray(E[] a) {
         int length = size();
         if (a.length < length) {
@@ -260,12 +296,12 @@ public class LinkedList<T> implements List<T>, Deque<T> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        LinkedList<T> temp = head;
+        Node temp = head;
         while (temp != null) {
             if (!c.contains(temp)) {
                 return false;
             }
-            temp = temp.next;
+            temp = temp.getNext();
         }
         return true;
     }
@@ -278,47 +314,38 @@ public class LinkedList<T> implements List<T>, Deque<T> {
         return true;
     }
 
-    private void link(LinkedList<T> first, LinkedList<T> second) {
-        first.next = second;
-        second.prev = first;
-    }
-
     @Override
     public boolean addAll(int index, Collection<? extends T> c) {
         LinkedList<T> newQueue = new LinkedList<T>(c);
-        LinkedList<T> temp = getByIndex(index);
+        Node temp = getByIndex(index);
         if (temp == head) {
-            link(newQueue.tail, head);
+            newQueue.tail.link(head);
             head = newQueue.head;
-            return true;
-        }
-        if (temp == tail) {
-            link(tail, newQueue.head);
+        } else if (temp == tail) {
+            tail.link(newQueue.head);
             tail = newQueue.tail;
-            return true;
+        } else {
+            temp.getPrev().link(newQueue.head);
+            newQueue.tail.link(temp);
         }
-        link(temp.prev, newQueue.head);
-        link(newQueue.tail, temp);
+        size += c.size();
         return true;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        boolean changeFlag = false;
+        int currentSize = size;
         for (Object l : c) {
-            boolean wasRemoved = true;
-            while (wasRemoved) {
-                wasRemoved = removeFirstOccurrence(l);
-                changeFlag = wasRemoved || changeFlag;
+            while (removeFirstOccurrence(l)) {
             }
         }
-        return changeFlag;
+        return currentSize != size;
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
         int initSize = size();
-        LinkedList<T> temp = head;
+        Node temp = head;
         while (temp != null) {
             if (!c.contains(temp.data)) {
                 temp = remove(temp);
@@ -329,56 +356,59 @@ public class LinkedList<T> implements List<T>, Deque<T> {
         return initSize != size();
     }
 
-    private LinkedList<T> remove(LinkedList<T> temp) {
+    private Node remove(Node temp) {
         if (temp == null) {
             return null;
         }
-        if (head.next == null) {
+        if (!head.hasNext()) {
             clear();
             return null;
         }
         if (temp == head) {
-            head.next.prev = null;
-            head = head.next;
-            temp.next = null;
+            head = head.getNext();
+            head.setPrev(null);
+            temp.setNext(null);
+            temp.setPrev(null);
+            size--;
             return head;
         } else if (temp == tail) {
-            tail.prev.next = null;
-            tail = tail.prev;
-            temp.prev = null;
+            tail = tail.getPrev();
+            tail.setNext(null);
+            temp.setPrev(null);
+            temp.setNext(null);
+            size--;
             return null;
         }
-        link(temp.prev, temp.next);
-        return temp.next;
+        temp.getPrev().link(temp.getNext());
+        size--;
+        return temp.getNext();
     }
 
     @Override
     public void clear() {
         head = null;
         tail = null;
+        size = 0;
     }
 
-    private LinkedList<T> getByIndex(int index) {
+    private Node getByIndex(int index) {
         int count = 0;
-        LinkedList<T> temp = head;
+        Node temp = head;
         while (count != index) {
             count++;
-            temp = temp.next;
+            temp = temp.getNext();
         }
         return temp;
     }
 
     @Override
     public T get(int index) {
-        return getByIndex(index).data;
+        return getByIndex(index).getData();
     }
 
     @Override
     public T set(int index, T element) {
-        LinkedList<T> temp = getByIndex(index);
-        T temp2 = temp.data;
-        temp.data = element;
-        return temp2;
+        return getByIndex(index).setData(element);
     }
 
     @Override
@@ -386,24 +416,23 @@ public class LinkedList<T> implements List<T>, Deque<T> {
         if (index == 0) {
             addFirst(element);
             return;
-        } else if (index == size()) {
+        } else if (index == size) {
             addLast(element);
             return;
         }
-        LinkedList<T> temp = getByIndex(index);
-        LinkedList<T> temp2 = new LinkedList<>();
-        temp2.data = element;
-        link(temp.prev, temp2);
-        link(temp2, temp);
+        Node temp = getByIndex(index);
+        Node temp2 = new Node(element);
+        temp.getPrev().link(temp2);
+        temp2.link(temp);
     }
 
     @Override
     public T remove(int index) {
-        if (index >= size() && index < 0) {
+        if (index >= size && index < 0) {
             throw new IndexOutOfBoundsException("Выход за пределы коллекции");
         }
-        LinkedList<T> temp = getByIndex(index);
-        T data = temp.data;
+        Node temp = getByIndex(index);
+        T data = temp.getData();
         remove(temp);
         return data;
     }
@@ -411,27 +440,27 @@ public class LinkedList<T> implements List<T>, Deque<T> {
     @Override
     public int indexOf(Object o) {
         int count = 0;
-        LinkedList<T> temp = head;
+        Node temp = head;
         while (temp != null) {
-            if (o.equals(temp.data)) {
+            if (o.equals(temp.getData())) {
                 return count;
             }
             count++;
-            temp = temp.next;
+            temp = temp.getNext();
         }
         return -1;
     }
 
     @Override
     public int lastIndexOf(Object o) {
-        int count = size() - 1;
-        LinkedList<T> temp = tail;
+        int count = size - 1;
+        Node temp = tail;
         while (temp != null) {
-            if (o.equals(temp.data)) {
+            if (o.equals(temp.getData())) {
                 return count;
             }
             count--;
-            temp = temp.prev;
+            temp = temp.getPrev();
         }
         return -1;
     }
@@ -447,15 +476,16 @@ public class LinkedList<T> implements List<T>, Deque<T> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<T> subList(int fromIndex, int toIndex) {
-        LinkedList<T> temp = head;
+        Node temp = head;
         Object[] list = new Object[toIndex - fromIndex];
         for (int i = 0; i < fromIndex; i++) {
-            temp = temp.next;
+            temp = temp.getNext();
         }
         for (int i = 0; i < list.length; i++) {
-            list[i] = temp.data;
-            temp = temp.next;
+            list[i] = temp.getData();
+            temp = temp.getNext();
         }
         return Arrays.asList((T[]) list);
     }
