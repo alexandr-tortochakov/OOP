@@ -1,20 +1,116 @@
 package ru.academit.tortochakov.mylist;
 
-import com.sun.xml.internal.bind.v2.TODO;
-
 import java.util.*;
 
 public class MyList<T> implements List<T> {
     private int length;
     private Object[] items;
+    private int modificationCount;
 
     public MyList(int capacity) {
         items = new Object[capacity];
     }
 
+    private class MyIterator<T> implements Iterator<T> {
+        private int index = -1;
+        private int modCount = modificationCount;
+
+        @Override
+        public boolean hasNext() {
+            return index < length;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public T next() {
+            if (modificationCount != modCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return (T) items[++index];
+        }
+    }
+
+    private class MyListIterator implements ListIterator<T> {
+        private int startIndex = -1;
+        private int endIndex = length;
+        private int lastReturned = -1;
+        private int lastAccessType;  // 1 for next, 2 for previous
+        private int modCount = modificationCount;
+
+        @Override
+        public boolean hasNext() {
+            return startIndex < length - 1;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public T next() {
+            if (modificationCount != modCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            lastReturned = ++startIndex;
+            lastAccessType = 1;
+            return (T) items[lastReturned];
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return endIndex > 0;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public T previous() {
+            if (modificationCount != modCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (!hasPrevious()) {
+                throw new NoSuchElementException();
+            }
+            lastReturned = --endIndex;
+            lastAccessType = 2;
+            return (T) items[lastReturned];
+        }
+
+        @Override
+        public int nextIndex() {
+            return ++startIndex;
+        }
+
+        @Override
+        public int previousIndex() {
+            return --endIndex;
+        }
+
+        @Override
+        public void remove() {
+            MyList.this.remove(lastReturned);
+        }
+
+        @Override
+        public void set(T t) {
+            items[lastReturned] = t;
+        }
+
+        @Override
+        public void add(T t) {
+            if (lastAccessType == 1) {
+                MyList.this.add(lastReturned - 1, t);
+            } else {
+                MyList.this.add(lastReturned + 1, t);
+            }
+        }
+    }
+
     @Override
     public Iterator<T> iterator() {
-        return null;
+        return new MyIterator<>();
     }
 
     @Override
@@ -29,12 +125,19 @@ public class MyList<T> implements List<T> {
 
     @Override
     public ListIterator<T> listIterator() {
-        return null;
+        return new MyListIterator();
     }
 
     @Override
     public ListIterator<T> listIterator(int i) {
-        return null;
+        if (i >= length || i < 0 ) {
+            throw new IndexOutOfBoundsException();
+        }
+        ListIterator<T> iterator = new MyListIterator();
+        for (int j = 0; j < i; j++) {
+            iterator.next();
+        }
+        return iterator;
     }
 
     @Override
@@ -59,6 +162,7 @@ public class MyList<T> implements List<T> {
         Object[] old = items;
         items = new Object[minCapacity];
         System.arraycopy(old, 0, items, 0, old.length);
+        modificationCount++;
     }
 
     public void trimToSize() {
@@ -68,6 +172,7 @@ public class MyList<T> implements List<T> {
         Object[] old = items;
         items = new Object[length];
         System.arraycopy(old, 0, items, 0, length);
+        modificationCount++;
     }
 
     @Override
@@ -94,6 +199,7 @@ public class MyList<T> implements List<T> {
         ensureCapacity(length * 2);
         items[length] = o;
         length++;
+        modificationCount++;
         return true;
     }
 
@@ -105,6 +211,7 @@ public class MyList<T> implements List<T> {
                 return true;
             }
         }
+        modificationCount++;
         return false;
     }
 
@@ -113,6 +220,7 @@ public class MyList<T> implements List<T> {
         ensureCapacity(length + collection.size());
         System.arraycopy(collection.toArray(), 0, items, length, collection.size());
         length += collection.size();
+        modificationCount++;
         return true;
     }
 
@@ -125,12 +233,14 @@ public class MyList<T> implements List<T> {
         System.arraycopy(items, index, items, index + collection.size(), length - index);
         System.arraycopy(collection.toArray(), 0, items, index, collection.size());
         length += collection.size();
+        modificationCount++;
         return true;
     }
 
     @Override
     public void clear() {
         length = 0;
+        modificationCount++;
     }
 
     @Override
@@ -150,6 +260,7 @@ public class MyList<T> implements List<T> {
         }
         T temp = (T) items[index];
         items[index] = o;
+        modificationCount++;
         return temp;
     }
 
@@ -162,6 +273,7 @@ public class MyList<T> implements List<T> {
         System.arraycopy(items, index, items, index + 1, length - index);
         items[index] = t;
         length++;
+        modificationCount++;
     }
 
     @Override
@@ -175,6 +287,7 @@ public class MyList<T> implements List<T> {
             System.arraycopy(items, index + 1, items, index, length - index - 1);
         }
         length--;
+        modificationCount++;
         return (T) o;
     }
 

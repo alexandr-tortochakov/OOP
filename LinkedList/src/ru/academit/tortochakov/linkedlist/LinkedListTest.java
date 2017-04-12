@@ -41,12 +41,12 @@ class LinkedListTest {
 
     @Test
     void testToString() throws Exception {
-        assertTrue(linkedList.toString().equals("1, 2, 3, 2, 1, 4"));
+        assertTrue(linkedList.toString().equals("[1, 2, 3, 2, 1, 4]"));
     }
 
     @Test
     void testToStringEmpty() throws Exception {
-        assertTrue(linkedListEmpty.toString().equals(""));
+        assertTrue(linkedListEmpty.toString().equals("[]"));
     }
 
     @Test
