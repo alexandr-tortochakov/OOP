@@ -34,15 +34,14 @@ public class MyList<T> implements List<T> {
     }
 
     private class MyListIterator implements ListIterator<T> {
-        private int startIndex = -1;
-        private int endIndex = length;
+        private int cursor = -1;
         private int lastReturned = -1;
-        private int lastAccessType;  // 1 for next, 2 for previous
+        private int lastAccessType;  // 2 for next, 3 for previous
         private int modCount = modificationCount;
 
         @Override
         public boolean hasNext() {
-            return startIndex < length - 1;
+            return cursor < length - 1;
         }
 
         @SuppressWarnings("unchecked")
@@ -54,14 +53,20 @@ public class MyList<T> implements List<T> {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            lastReturned = ++startIndex;
-            lastAccessType = 1;
+            lastReturned = ++cursor;
+            lastAccessType = 2;
             return (T) items[lastReturned];
+        }
+
+        private void setPosition(int index) {
+            lastReturned = index - 1;
+            cursor = index - 1;
+            lastAccessType = 1;
         }
 
         @Override
         public boolean hasPrevious() {
-            return endIndex > 0;
+            return cursor > 0;
         }
 
         @Override
@@ -73,38 +78,56 @@ public class MyList<T> implements List<T> {
             if (!hasPrevious()) {
                 throw new NoSuchElementException();
             }
-            lastReturned = --endIndex;
-            lastAccessType = 2;
+            lastReturned = --cursor;
+            lastAccessType = 3;
             return (T) items[lastReturned];
         }
 
         @Override
         public int nextIndex() {
-            return ++startIndex;
+            return cursor + 1;
         }
 
         @Override
         public int previousIndex() {
-            return --endIndex;
+            return Math.max(-1, cursor - 1);
         }
 
         @Override
         public void remove() {
-            MyList.this.remove(lastReturned);
+            if (modCount != modificationCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (lastAccessType == 2 || lastAccessType == 3) {
+                MyList.this.remove(lastReturned);
+                lastAccessType *= 5;
+                modCount = modificationCount;
+            }
         }
 
         @Override
         public void set(T t) {
-            items[lastReturned] = t;
+            if (modCount != modificationCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (lastAccessType == 2 || lastAccessType == 3) {
+                items[lastReturned] = t;
+            }
         }
 
         @Override
         public void add(T t) {
-            if (lastAccessType == 1) {
+            if (modCount != modificationCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (lastAccessType % 2 == 0) {
                 MyList.this.add(lastReturned - 1, t);
-            } else {
+            } else if (lastAccessType % 3 == 0) {
                 MyList.this.add(lastReturned + 1, t);
             }
+            cursor++;
+            lastAccessType *= 7;
+            modCount = modificationCount;
         }
     }
 
@@ -130,13 +153,11 @@ public class MyList<T> implements List<T> {
 
     @Override
     public ListIterator<T> listIterator(int i) {
-        if (i >= length || i < 0 ) {
+        if (i >= length || i < 0) {
             throw new IndexOutOfBoundsException();
         }
-        ListIterator<T> iterator = new MyListIterator();
-        for (int j = 0; j < i; j++) {
-            iterator.next();
-        }
+        MyListIterator iterator = new MyListIterator();
+        iterator.setPosition(i);
         return iterator;
     }
 

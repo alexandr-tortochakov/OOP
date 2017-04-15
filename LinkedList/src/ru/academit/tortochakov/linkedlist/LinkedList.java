@@ -1,5 +1,6 @@
 package ru.academit.tortochakov.linkedlist;
 
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.util.*;
 
 public class LinkedList<T> implements List<T>, Deque<T> {
@@ -62,10 +63,164 @@ public class LinkedList<T> implements List<T>, Deque<T> {
         }
     }
 
+    private class MyIterator implements Iterator<T> {
+        private Node cursor = head;
+        private int modCount = modificationCount;
+
+        @Override
+        public boolean hasNext() {
+            return cursor != null && cursor.getNext() != null;
+        }
+
+        @Override
+        public T next() {
+            if (cursor == null) {
+                throw new NoSuchElementException();
+            }
+            if (modCount != modificationCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (cursor != head) {
+                cursor = cursor.getNext();
+            }
+            return cursor.getData();
+        }
+    }
+
+    private class MyListIterator implements ListIterator<T> {
+        private Node cursor;
+        private Node nextCursor = head;
+        private Node prevCursor;
+        private int cursorIndex = -1;
+        private int modCount = modificationCount;
+        private Node lastReturned;
+        private int lastAccessType;
+
+        @Override
+        public boolean hasNext() {
+            return nextCursor != null;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            if (modCount != modificationCount) {
+                throw new ConcurrentModificationException();
+            }
+            prevCursor = cursor;
+            cursor = nextCursor;
+            nextCursor = nextCursor.getNext();
+            cursorIndex++;
+            lastReturned = cursor;
+            lastAccessType = 2;
+            return cursor.getData();
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return prevCursor != null;
+        }
+
+        @Override
+        public T previous() {
+            if (!hasPrevious()) {
+                throw new NoSuchElementException();
+            }
+            if (modCount != modificationCount) {
+                throw new ConcurrentModificationException();
+            }
+            nextCursor = cursor;
+            cursor = prevCursor;
+            prevCursor = cursor.getPrev();
+            cursorIndex--;
+            lastReturned = cursor;
+            lastAccessType = 3;
+            return cursor.getData();
+        }
+
+        @Override
+        public int nextIndex() {
+            return cursorIndex + 1;
+        }
+
+        @Override
+        public int previousIndex() {
+            return Math.max(-1, cursorIndex - 1);
+        }
+
+        @Override
+        public void remove() {
+            if (modCount != modificationCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (lastAccessType == 2 || lastAccessType == 3) {
+                cursor = LinkedList.this.remove(lastReturned);
+                modCount = modificationCount;
+                if (cursor != null) {
+                    nextCursor = cursor.getNext();
+                } else {
+                    nextCursor = null;
+                }
+            }
+            lastAccessType *= 5;
+        }
+
+        @Override
+        public void set(T t) {
+            if (modCount != modificationCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (lastAccessType == 2 || lastAccessType == 3) {
+                cursor.setData(t);
+            }
+        }
+
+        @Override
+        public void add(T t) {
+            if (modCount != modificationCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (lastAccessType % 2 == 0) {
+                LinkedList.this.add(cursorIndex - 1, t);
+            } else if (lastAccessType%3 == 0) {
+                LinkedList.this.add(cursorIndex + 1, t);
+            }
+            cursorIndex++;
+            lastAccessType *= 7;
+            modCount = modificationCount;
+        }
+    }
+
+    private class MyDescendingIterator implements Iterator<T> {
+        private Node cursor = tail;
+        private int modCount = modificationCount;
+
+        @Override
+        public boolean hasNext() {
+            return cursor != null && cursor.getPrev() != null;
+        }
+
+        @Override
+        public T next() {
+            if (cursor == null) {
+                throw new NoSuchElementException();
+            }
+            if (modCount != modificationCount) {
+                throw new ConcurrentModificationException();
+            }
+            if (cursor != tail) {
+                cursor = cursor.getPrev();
+            }
+            return cursor.getData();
+        }
+    }
+
     private Node head;
     private Node tail;
     private int size;
-
+    private int modificationCount;
 
     public LinkedList(Collection<? extends T> collection) {
         for (T l : collection) {
@@ -84,6 +239,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
             head = temp;
         }
         size++;
+        modificationCount++;
     }
 
     @Override
@@ -98,6 +254,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
             tail = temp;
         }
         size++;
+        modificationCount++;
     }
 
     public String toString() {
@@ -240,7 +397,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
 
     @Override
     public Iterator<T> descendingIterator() {
-        return null;
+        return new MyDescendingIterator();
     }
 
     @Override
@@ -260,7 +417,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
 
     @Override
     public Iterator<T> iterator() {
-        return null;
+        return new MyIterator();
     }
 
     @Override
@@ -343,6 +500,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
             newQueue.tail.link(temp);
         }
         size += c.size();
+        modificationCount++;
         return true;
     }
 
@@ -380,6 +538,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
         if (temp == null) {
             return null;
         }
+        modificationCount++;
         if (!head.hasNext()) {
             clear();
             return null;
@@ -409,6 +568,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
         head = null;
         tail = null;
         size = 0;
+        modificationCount++;
     }
 
     private Node getNodeByIndex(int index) {
@@ -445,13 +605,13 @@ public class LinkedList<T> implements List<T>, Deque<T> {
         if (index >= size || index < 0) {
             throw new IndexOutOfBoundsException();
         }
-
+        modificationCount++;
         return getNodeByIndex(index).setData(element);
     }
 
     @Override
     public void add(int index, T element) {
-        if (index >= size || index < 0) {
+        if (index > size || index < 0) {
             throw new IndexOutOfBoundsException();
         }
         if (index == 0) {
@@ -461,6 +621,7 @@ public class LinkedList<T> implements List<T>, Deque<T> {
             addLast(element);
             return;
         }
+        modificationCount++;
         Node temp = getNodeByIndex(index);
         Node temp2 = new Node(element);
         temp.getPrev().link(temp2);
@@ -524,12 +685,16 @@ public class LinkedList<T> implements List<T>, Deque<T> {
 
     @Override
     public ListIterator<T> listIterator() {
-        return null;
+        return new MyListIterator();
     }
 
     @Override
     public ListIterator<T> listIterator(int index) {
-        return null;
+        MyListIterator iterator = new MyListIterator();
+        for (int i = 0; i < index; i++) {
+            iterator.next();
+        }
+        return iterator;
     }
 
     @Override
